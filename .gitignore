@@ -1,0 +1,18 @@
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# nondefault's server library
+spotify-igca/
+
+# JMPerez's spotify web api JS
+spotify-web-api-js/
+
+# misc design images
+assets/

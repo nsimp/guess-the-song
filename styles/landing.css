@@ -1,0 +1,25 @@
+body {
+	/*background-color: rgb(30,215,96);*/
+}
+#playlist-size-error {
+	display: none;
+}
+#login-wrapper {
+	display: none;
+}
+#playlist-table {
+	display: none;
+	table-layout: fixed;
+	width: 150px;
+}
+#song-table {
+	display: none;
+	table-layout: fixed;
+	width: 150px;
+}
+.playlist-title {
+	display: none;
+}
+.song-title {
+	display: none;
+}

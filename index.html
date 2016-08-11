@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Implicit grant demo</title>
+	<link rel="stylesheet" type="text/css" href="styles/landing.css">
+	<script src="styles/transitions.js"></script>
+	<script src="spotify-igca/spotify-igca.js"></script>
+	<script src="spotify-web-api-js/src/spotify-web-api.js"></script>
+</head>
+<body>
+	<div id="playlist-size-error">
+		Hey! Your playlist is too small! Please pick another :)
+	</div>
+
+	<div id="login-wrapper">
+		<div class="splash-text">
+			How well do you know your own music?
+		</div>
+		<div class="login-button">
+			<input type="button" id="login" value="LOGIN" onclick="auth.reAuth()">
+		</div>
+	</div>
+
+	<div id="playlist-view">
+		<h1 class="playlist-title"> Playlists </h1>
+		<table id="playlist-table" border="1px"></table>
+	</div>
+
+	<div id="song-view">
+		<h1 class="song-title"> What are you listening to? </h1>
+		<table id="song-table" border="1px"></table>
+	</div>
+
+	<script>
+		/* jshint esversion: 6 */
+
+		var api = new SpotifyWebApi();
+		var auth = new SpotifyIGCA("36820cf653e547f4b977136892c8df22",
+			['playlist-read-private', 'playlist-read-collaborative']);
+		var success = auth.init();
+
+		// contains the currently selected playlist's id and user id
+		const currentSelPlaylistData = {
+			playlistId: '',
+			usrId: ''
+		};
+
+		// contains (up to) 100 of the currently selected playlist's songs, song urls, and song ids
+		var songData = [];
+
+		var audio = new Audio();
+
+		// if the login wasnt successful, show the elements
+		if(!success) {
+			document.getElementById('login-wrapper').style.display = 'block';
+		} else {
+			// what happens when we're authenticated
+			console.log('token: '+auth.getAccessToken());
+			api.setAccessToken(auth.getAccessToken()); // Use the token that was just generated as our access token
+
+			// generate a table and fill it with the user's playlists
+			populatePlaylistTable();
+		}
+
+		/**
+		*	Fills the global object selSongData with the names, preview urls, and ids of 100
+		*	songs from the currently selected playlist.
+		*
+		*	Offset is randomized on playlists with sizes larger than 100 songs
+		*	so that it's possible for the game to be played with all songs eventually.
+		*
+		*	Arguments are username and playlist ID, respectively.
+		*
+		*/
+
+		function getSongInfo(user, playlist) {
+			document.querySelector('.playlist-title').style.display = 'none';
+			return new Promise((resolve, reject) => { // need some promise error catching in this function!
+				api.getPlaylistTracks(user, playlist)
+					.then((data) => {
+						return getOffset(data);
+					})
+					.catch((error) => {
+						console.error('Error retrieving playlist!', error);
+					});
+
+				// if the playlist has more than 100 songs (spotify's web api limit)
+				// assign the track offset to something between 0 and the playlist size - 100
+				function getOffset(data) {
+					let offset = 0;
+					if(data.total > 100) { //rephrase this
+						let max = data.total - 100;
+						offset = Math.floor(Math.random() * (max + 1));
+					} else offset = 0;
+
+					api.getPlaylistTracks(user, playlist, {'offset':offset})
+						.then((data) => {
+							fillArray(data);
+						})
+						.catch((error) => {
+							console.error('Error filling URL array!', error);
+							reject(new Error('getSongInfo Promise rejected!')); // maybe this is correct?
+						});
+
+					// get all of the preview urls, song names, and ids - store in global variables
+					function fillArray(data) {
+						for(let i = 0; i < data.items.length; i++) {
+							songData.push({
+								name: data.items[i].track.name,
+								url: data.items[i].track.preview_url,
+								id: data.items[i].track.id,
+							});
+						}
+
+						if(songData.length > 5 && songData.length !== null ) {
+
+							// return the now populated global obj through the promise
+							resolve(songData);
+
+						} else { // what to do if the playlist is too small (display some error?)
+							console.error('Playlist is too small!!');
+							document.getElementById('playlist-size-error').style.display = 'block';
+							document.querySelector('.playlist-title').style.display = 'none';
+						}
+					}
+				}
+
+			});
+		}
+
+		function pickQuestion(data) {
+			document.getElementById('song-table').innerHTML = '';
+			var questionArray = [];
+
+			while(questionArray.length < 5) {
+				let index = Math.floor(Math.random() * (songData.length));
+				
+				// if the song has a null url or is already in the questionArray, try again
+				if(questionArray.includes(data[index]) || data[index].url === null) {
+					continue;
+				} else {
+					questionArray.push(data[index]);
+				}
+			}
+
+			populateSongTable(questionArray);
+		}
+
+		// creates a play button in the DOM with the url specified
+		// TODO: make songs reset inside of this function
+		function createPlayButton(url) {
+			audio.src = url;		
+			audio.addEventListener('canplaythrough', () => {
+				document.body.appendChild(audio);
+				audio.play();
+			});
+		}
+
+		function populateSongTable(array) {
+			document.querySelector('.song-title').style.display = 'block';
+			var table = document.getElementById('song-table');
+			//fadeIn(table, 'block');
+			table.style.display = 'block';
+
+			var correctClickListener = function(event) {
+				audio.pause();
+				audio.currentTime = 0;
+				pickQuestion(songData);
+			};
+
+			var incorrectClickListener = function(event) {
+				// what to do if the song chosen is incorrect?
+			};
+
+			let rand = Math.floor(Math.random() * (array.length));
+			// generate a table with 5 cells
+			for(let i = 0; i < 5; i++) {
+				let tr = document.createElement('tr');
+				let td = document.createElement('td');
+
+				td.setAttribute('class', 'song-names');
+
+				td.innerHTML = array[i].name;
+
+				if(i == rand) {
+					td.addEventListener('click', correctClickListener, false);
+				} else td.addEventListener('click', incorrectClickListener, false);
+
+				tr.appendChild(td);
+				table.appendChild(tr);
+			}
+
+			createPlayButton(array[rand].url);
+		}
+
+		function populatePlaylistTable(){
+			api.getUserPlaylists({'limit':'50'})
+				.then((data) => {
+					generatePlaylistTable(data);
+				})
+				.catch((error) => {
+					console.error('Error getting user playlists!', error);
+				});
+
+			function generatePlaylistTable(data) {
+				// show the table now that the user is logged in
+				document.querySelector('.playlist-title').style.display = 'block';
+				var table = document.getElementById('playlist-table');
+				//fadeIn(table, 'block');
+				table.style.display = 'block';
+
+				// event handler for playlist table
+				var clickListener = function(event) {
+					// gets the unique playlist ID when a <td> is clicked
+					currentSelPlaylistData.usrId = this.getAttribute('data-userid');
+					currentSelPlaylistData.playlistId = this.getAttribute('data-id');
+
+					// fade out the playlist table view
+					//fadeOut(document.getElementById('playlist-table'));
+					table.style.display = 'none';
+
+					// reset the arrays on each playlist selection
+					songData = [];
+
+					// randomly selects a song to guess and stores it in the song object
+					getSongInfo(currentSelPlaylistData.usrId, currentSelPlaylistData.playlistId)
+						.then((data) => {pickQuestion(data);});
+				};
+
+				// creates the playlist table and assigns user id and playlist id to data- attributes
+				for(let i = 0; i < data.items.length; i++) {
+					let tr = document.createElement("tr");
+					let td = document.createElement("td");
+
+					td.setAttribute('class', 'playlist-names');
+
+					td.setAttribute('data-id', data.items[i].id);
+					td.setAttribute('data-userid', data.items[i].owner.id);
+
+					td.innerHTML = data.items[i].name;
+					td.addEventListener('click', clickListener, false);
+
+					tr.appendChild(td);
+					table.appendChild(tr);
+				}
+		}
+	}
+
+	</script>
+</body>
+</html>
