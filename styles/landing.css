@@ -1,18 +1,55 @@
+@-webkit-keyframes hue {
+  0%, 100%  { -webkit-filter: hue-rotate(0deg); }
+  50% { -webkit-filter: hue-rotate(180deg); }
+}
 body {
-	/*background-color: rgb(30,215,96);*/
+	overflow: hidden;
 }
-#playlist-size-error {
+.playlist-size-small {
 	display: none;
 }
-#login-wrapper {
+.login-wrapper {
 	display: none;
+	width: calc(25vw + 26vh + 12vmin);
+	height: calc(16vw + 15vh + 9vmin);
+
+	position: absolute;
+	top: -30vh;
+	bottom: 0;
+	left: 0;
+	right: 0;
+
+	margin: auto;
 }
-#playlist-table {
+.splash-text {
+	color: #f35626;
+    background-image: -webkit-linear-gradient(92deg,#f35626,#feab3a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    -webkit-animation: hue 60s infinite linear;
+	
+	font-family: 'Montserrat', sans-serif;
+	font-size: calc(3vw + 3vh + 1.5vmin);
+	padding: 0.5em 1em 0.5em 0;
+	white-space: nowrap;
+}
+.login {
+	color: black; 
+	text-align: center;
+
+	height: 55px;
+	width: 165px;
+	left: 0;
+	right: 0;
+	
+	margin: auto;
+	position: absolute;
+}
+.playlist-table {
 	display: none;
 	table-layout: fixed;
-	width: 150px;
 }
-#song-table {
+.song-table {
 	display: none;
 	table-layout: fixed;
 	width: 150px;

@@ -8,6 +8,9 @@
 ehthumbs.db
 Thumbs.db
 
+#materialize css library
+materialize/
+
 # nondefault's server library
 spotify-igca/
 

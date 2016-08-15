@@ -1,34 +1,36 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 	<title>Implicit grant demo</title>
+	<link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link type="text/css" rel="stylesheet" href="materialize/css/materialize.css"/>
 	<link rel="stylesheet" type="text/css" href="styles/landing.css">
+	<link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
 	<script src="styles/transitions.js"></script>
 	<script src="spotify-igca/spotify-igca.js"></script>
 	<script src="spotify-web-api-js/src/spotify-web-api.js"></script>
 </head>
 <body>
-	<div id="playlist-size-error">
-		Hey! Your playlist is too small! Please pick another :)
+	<div class="playlist-size-small">
+		<h1>Hey your playlist is too small!</h1>
 	</div>
 
-	<div id="login-wrapper">
-		<div class="splash-text">
-			How well do you know your own music?
-		</div>
-		<div class="login-button">
-			<input type="button" id="login" value="LOGIN" onclick="auth.reAuth()">
-		</div>
+	<div class="login-wrapper">
+		<h1 class="splash-text">How well do you<br> 
+								know your own<br> 
+								music?</h1>
+		<a class="waves-effect waves-light btn-large grey lighten-5 login" onclick="auth.reAuth();">
+		<i class="material-icons left">launch</i>login</a>
 	</div>
 
 	<div id="playlist-view">
 		<h1 class="playlist-title"> Playlists </h1>
-		<table id="playlist-table" border="1px"></table>
+		<table class="playlist-table" border="1px"></table>
 	</div>
 
 	<div id="song-view">
 		<h1 class="song-title"> What are you listening to? </h1>
-		<table id="song-table" border="1px"></table>
+		<table class="song-table" border="1px"></table>
 	</div>
 
 	<script>
@@ -52,7 +54,7 @@
 
 		// if the login wasnt successful, show the elements
 		if(!success) {
-			document.getElementById('login-wrapper').style.display = 'block';
+			document.querySelector('.login-wrapper').style.display = 'block';
 		} else {
 			// what happens when we're authenticated
 			console.log('token: '+auth.getAccessToken());
@@ -119,7 +121,7 @@
 
 						} else { // what to do if the playlist is too small (display some error?)
 							console.error('Playlist is too small!!');
-							document.getElementById('playlist-size-error').style.display = 'block';
+							document.querySelector('.playlist-size-small').style.display = 'block';
 							document.querySelector('.playlist-title').style.display = 'none';
 						}
 					}
@@ -129,7 +131,7 @@
 		}
 
 		function pickQuestion(data) {
-			document.getElementById('song-table').innerHTML = '';
+			document.querySelector('.song-table').innerHTML = '';
 			var questionArray = [];
 
 			while(questionArray.length < 5) {
@@ -158,7 +160,7 @@
 
 		function populateSongTable(array) {
 			document.querySelector('.song-title').style.display = 'block';
-			var table = document.getElementById('song-table');
+			var table = document.querySelector('.song-table');
 			//fadeIn(table, 'block');
 			table.style.display = 'block';
 
@@ -205,7 +207,7 @@
 			function generatePlaylistTable(data) {
 				// show the table now that the user is logged in
 				document.querySelector('.playlist-title').style.display = 'block';
-				var table = document.getElementById('playlist-table');
+				var table = document.querySelector('.playlist-table');
 				//fadeIn(table, 'block');
 				table.style.display = 'block';
 
@@ -215,8 +217,6 @@
 					currentSelPlaylistData.usrId = this.getAttribute('data-userid');
 					currentSelPlaylistData.playlistId = this.getAttribute('data-id');
 
-					// fade out the playlist table view
-					//fadeOut(document.getElementById('playlist-table'));
 					table.style.display = 'none';
 
 					// reset the arrays on each playlist selection
