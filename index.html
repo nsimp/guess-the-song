@@ -10,7 +10,7 @@
 	<script src="spotify-igca/spotify-igca.js"></script>
 	<script src="spotify-web-api-js/src/spotify-web-api.js"></script>
 </head>
-<body>
+<body id="flow">
 	<div class="playlist-size-small">
 		<h1>Hey your playlist is too small!</h1>
 	</div>
@@ -23,12 +23,13 @@
 		<i class="material-icons left">launch</i>login</a>
 	</div>
 
-	<div id="playlist-view">
+	<div class="playlist-view">
 		<h1 class="playlist-title"> Playlists </h1>
-		<table class="playlist-table" border="1px"></table>
+		<h5 class="playlist-title-under">select a playlist by clicking the <i class='material-icons'>launch</i> button</h5>
+		<table class="playlist-table"></table>
 	</div>
 
-	<div id="song-view">
+	<div class="song-view">
 		<h1 class="song-title"> What are you listening to? </h1>
 		<table class="song-table" border="1px"></table>
 	</div>
@@ -77,6 +78,7 @@
 
 		function getSongInfo(user, playlist) {
 			document.querySelector('.playlist-title').style.display = 'none';
+			document.querySelector('.playlist-title-under').style.display = 'none';
 			return new Promise((resolve, reject) => { // need some promise error catching in this function!
 				api.getPlaylistTracks(user, playlist)
 					.then((data) => {
@@ -123,6 +125,7 @@
 							console.error('Playlist is too small!!');
 							document.querySelector('.playlist-size-small').style.display = 'block';
 							document.querySelector('.playlist-title').style.display = 'none';
+							document.querySelector('.playlist-title-under').style.display = 'none';
 						}
 					}
 				}
@@ -159,9 +162,7 @@
 		}
 
 		function populateSongTable(array) {
-			document.querySelector('.song-title').style.display = 'block';
-			var table = document.querySelector('.song-table');
-			//fadeIn(table, 'block');
+			var table = document.querySelector('.song-view');
 			table.style.display = 'block';
 
 			var correctClickListener = function(event) {
@@ -205,11 +206,10 @@
 				});
 
 			function generatePlaylistTable(data) {
-				// show the table now that the user is logged in
-				document.querySelector('.playlist-title').style.display = 'block';
 				var table = document.querySelector('.playlist-table');
-				//fadeIn(table, 'block');
-				table.style.display = 'block';
+				var playlistDiv = document.querySelector('.playlist-view');
+				playlistDiv.style.display = 'block';
+				document.getElementById('flow').style.overflow = 'visible';
 
 				// event handler for playlist table
 				var clickListener = function(event) {
@@ -231,15 +231,22 @@
 				for(let i = 0; i < data.items.length; i++) {
 					let tr = document.createElement("tr");
 					let td = document.createElement("td");
+					let plSelector = document.createElement('td');
 
-					td.setAttribute('class', 'playlist-names');
+					tr.setAttribute('class', 'playlist-tr');
+					td.setAttribute('class', 'playlist-td');
 
-					td.setAttribute('data-id', data.items[i].id);
-					td.setAttribute('data-userid', data.items[i].owner.id);
+					plSelector.setAttribute('class', 'playlist-selector');
 
-					td.innerHTML = data.items[i].name;
-					td.addEventListener('click', clickListener, false);
+					plSelector.setAttribute('data-id', data.items[i].id);
+					plSelector.setAttribute('data-userid', data.items[i].owner.id);
 
+					td.innerHTML = data.items[i].name.toUpperCase();
+					plSelector.innerHTML = "<i class='material-icons'>launch</i>";
+
+					plSelector.addEventListener('click', clickListener, false);
+
+					tr.appendChild(plSelector);
 					tr.appendChild(td);
 					table.appendChild(tr);
 				}
