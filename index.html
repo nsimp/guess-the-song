@@ -6,7 +6,6 @@
 	<link type="text/css" rel="stylesheet" href="materialize/css/materialize.css"/>
 	<link rel="stylesheet" type="text/css" href="styles/landing.css">
 	<link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
-	<script src="styles/transitions.js"></script>
 	<script src="spotify-igca/spotify-igca.js"></script>
 	<script src="spotify-web-api-js/src/spotify-web-api.js"></script>
 </head>
@@ -163,7 +162,8 @@
 
 		function populateSongTable(array) {
 			var table = document.querySelector('.song-view');
-			table.style.display = 'block';
+			var songDiv = document.querySelector('.song-view');
+			songDiv.style.display = 'block';
 
 			var correctClickListener = function(event) {
 				audio.pause();
@@ -176,12 +176,14 @@
 			};
 
 			let rand = Math.floor(Math.random() * (array.length));
+
 			// generate a table with 5 cells
 			for(let i = 0; i < 5; i++) {
 				let tr = document.createElement('tr');
 				let td = document.createElement('td');
 
-				td.setAttribute('class', 'song-names');
+				tr.setAttribute('class', 'song-tr')
+				td.setAttribute('class', 'song-td');
 
 				td.innerHTML = array[i].name;
 
@@ -227,11 +229,11 @@
 						.then((data) => {pickQuestion(data);});
 				};
 
-				// creates the playlist table and assigns user id and playlist id to data- attributes
+				// creates the playlist table elements and assigns them user id and playlist id to data attributes
 				for(let i = 0; i < data.items.length; i++) {
 					let tr = document.createElement("tr");
 					let td = document.createElement("td");
-					let plSelector = document.createElement('td');
+					let plSelector = document.createElement('td'); // leftmost icon next to playlist name
 
 					tr.setAttribute('class', 'playlist-tr');
 					td.setAttribute('class', 'playlist-td');

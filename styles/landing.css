@@ -56,17 +56,17 @@ body {
 	margin: 0 auto;
 
 }
-.playlist-title {
+.playlist-title { /* heading */
 	padding-bottom: 10px;
 }
-.playlist-title-under {
+.playlist-title-under { /* subheading */
 	padding-bottom: 10px;
 }
 .playlist-table {
 	margin: 0 auto;
 	font-size: 18px;
 }
-.playlist-selector {
+.playlist-selector { /* icons to the left of playlist names */
 	border-right: 1px solid #000;
 	text-shadow: 0 1px #eee;
 }
@@ -81,6 +81,12 @@ body {
 	display: none;
 }
 .song-table {
-	table-layout: fixed;
-	width: 150px;
+	margin: 0 auto;
+	font-size: 18px;
+}
+.song-td {
+
+}
+.song-tr {
+	
 }
